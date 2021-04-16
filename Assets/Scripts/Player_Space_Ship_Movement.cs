@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 
@@ -9,6 +10,9 @@ public class Player_Space_Ship_Movement : MonoBehaviour
 {
     public Camera mainCam;
     public Camera noseCam;
+
+    public Slider fuelSlider;
+    public float maxFuel;
 
     private CharacterController controller;
     private Transform playerShipTransform;
@@ -51,6 +55,7 @@ public class Player_Space_Ship_Movement : MonoBehaviour
     {
         mainCam.enabled = true;
         noseCam.enabled = false;
+        fuelSlider.value = maxFuel;
     }
 
     private void Awake()
@@ -109,26 +114,34 @@ public class Player_Space_Ship_Movement : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+
+    void FixedUpdate()
     {
 
-        // controls the movement speed during acceleration and deceleration.
-        movementCurrentZAxisSpeed = Mathf.Lerp(movementCurrentZAxisSpeed, movementZAxis * movementMaxZAxisSpeed, movementAccelerationZAxis * Time.deltaTime);
-        movementCurrentXAxisSpeed = Mathf.Lerp(movementCurrentXAxisSpeed, movementXAxis * movementMaxXAxisSpeed, movementAccelerationXAxis * Time.deltaTime);
-        movementCurrentYAxisSpeed = Mathf.Lerp(movementCurrentYAxisSpeed, movementYAxis * movementMaxYAxisSpeed, movementAccelerationYAxis * Time.deltaTime);
+        if (fuelSlider.value > 0)
+        {
+            // controls the movement speed during acceleration and deceleration.
+            movementCurrentZAxisSpeed = Mathf.Lerp(movementCurrentZAxisSpeed, movementZAxis * movementMaxZAxisSpeed, movementAccelerationZAxis * Time.deltaTime);
+            movementCurrentXAxisSpeed = Mathf.Lerp(movementCurrentXAxisSpeed, movementXAxis * movementMaxXAxisSpeed, movementAccelerationXAxis * Time.deltaTime);
+            movementCurrentYAxisSpeed = Mathf.Lerp(movementCurrentYAxisSpeed, movementYAxis * movementMaxYAxisSpeed, movementAccelerationYAxis * Time.deltaTime);
 
-        // controls rotation speed during acceleration and deceleration.
-        rotationCurrentZAxisSpeed = Mathf.Lerp(rotationCurrentZAxisSpeed, rotationZAxis * rotationMaxZAxisSpeed, rotationAccelerationZAxis * Time.deltaTime);
-        rotationCurrentXAxisSpeed = Mathf.Lerp(rotationCurrentXAxisSpeed, rotationXAxis * rotationMaxXAxisSpeed, rotationAccelerationXAxis * Time.deltaTime);
-        rotationCurrentYAxisSpeed = Mathf.Lerp(rotationCurrentYAxisSpeed, rotationYAxis * rotationMaxYAxisSpeed, rotationAccelerationYAxis * Time.deltaTime);
+            // controls rotation speed during acceleration and deceleration.
+            rotationCurrentZAxisSpeed = Mathf.Lerp(rotationCurrentZAxisSpeed, rotationZAxis * rotationMaxZAxisSpeed, rotationAccelerationZAxis * Time.deltaTime);
+            rotationCurrentXAxisSpeed = Mathf.Lerp(rotationCurrentXAxisSpeed, rotationXAxis * rotationMaxXAxisSpeed, rotationAccelerationXAxis * Time.deltaTime);
+            rotationCurrentYAxisSpeed = Mathf.Lerp(rotationCurrentYAxisSpeed, rotationYAxis * rotationMaxYAxisSpeed, rotationAccelerationYAxis * Time.deltaTime);
 
-        controller.Move((transform.forward * movementCurrentZAxisSpeed * Time.deltaTime) + 
-                        (transform.right * movementCurrentXAxisSpeed * Time.deltaTime) + 
-                        (transform.up * movementCurrentYAxisSpeed * Time.deltaTime));
+            controller.Move((transform.forward * movementCurrentZAxisSpeed * Time.deltaTime) +
+                            (transform.right * movementCurrentXAxisSpeed * Time.deltaTime) +
+                            (transform.up * movementCurrentYAxisSpeed * Time.deltaTime));
 
-        playerShipTransform.Rotate(rotationCurrentZAxisSpeed * Time.deltaTime,
-                                   rotationCurrentXAxisSpeed * Time.deltaTime,
-                                   rotationCurrentYAxisSpeed * Time.deltaTime,
-                                   Space.Self);
+            playerShipTransform.Rotate(rotationCurrentZAxisSpeed * Time.deltaTime,
+                                       rotationCurrentXAxisSpeed * Time.deltaTime,
+                                       rotationCurrentYAxisSpeed * Time.deltaTime,
+                                       Space.Self);
+
+            fuelSlider.value -= (movementCurrentXAxisSpeed + movementCurrentYAxisSpeed + movementCurrentZAxisSpeed) * 0.0005f;
+        }
+
+        
     }
 }
